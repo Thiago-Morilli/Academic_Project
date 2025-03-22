@@ -1,7 +1,6 @@
 import mysql.connector
 from mysql.connector import errorcode
 
-print("Conectando...")
 try:
       conn = mysql.connector.connect(
             host='127.0.0.1',
@@ -22,7 +21,6 @@ cursor.execute("CREATE DATABASE `jogoteca`;")
 
 cursor.execute("USE `jogoteca`;")
 
-# criando tabelas
 TABLES = {}
 TABLES['Jogos'] = ('''
       CREATE TABLE `jogos` (
@@ -55,12 +53,9 @@ for tabela_nome in TABLES:
             print('OK')
 
 
-# inserindo usuarios
 usuario_sql = 'INSERT INTO usuarios (nome, nickname, senha) VALUES (%s, %s, %s)'
 usuarios = [
-      ("Bruno Divino", "BD", "alohomora"),
-      ("Camila Ferreira", "Mila", "paozinho"),
-      ("Guilherme Louro", "Cake", "python_eh_vida")
+      ("Thiago Morilli", "TM", "123"),
 ]
 cursor.executemany(usuario_sql, usuarios)
 
@@ -69,7 +64,6 @@ print(' -------------  Usuários:  -------------')
 for user in cursor.fetchall():
     print(user[1])
 
-# inserindo jogos
 jogos_sql = 'INSERT INTO jogos (nome, categoria, console) VALUES (%s, %s, %s)'
 jogos = [
       ('GTA 5', 'Acao-Aventura', 'PS3'),
@@ -86,7 +80,6 @@ print(' -------------  Jogos:  -------------')
 for jogo in cursor.fetchall():
     print(jogo[1])
 
-# commitando se não nada tem efeito
 conn.commit()
 
 cursor.close()

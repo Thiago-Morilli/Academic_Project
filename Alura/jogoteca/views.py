@@ -1,6 +1,8 @@
-from flask import Flask, render_template, request, redirect, session, flash, url_for
+from flask import Flask, render_template, request, redirect, session, flash, url_for, send_from_directory
 from Jogoteca import app, db
 from Models import Jogos, Usuarios
+from helpers import recupera_imagem, deleta_arquivo
+import time
 
 @app.route('/')
 def index():
@@ -32,7 +34,10 @@ def criar():
     db.session.commit()
 
     arquivo = request.files['arquivo']
-    arquivo.save(f'uploads/capa{novo_jogo.id}.jpg')
+    upload_path = app.config['UPLOAD_PATH']
+    timestamp = time.time()
+
+    arquivo.save(f'{upload_path}/capa{novo_jogo.id}-{timestamp}.jpg')
 
    
     return redirect(url_for('index'))
@@ -42,7 +47,8 @@ def editar(id):
     if 'usuario_logado' not in session or session['usuario_logado'] == None:
         return redirect(url_for('login', proxima=url_for('editar')))
     jogo = Jogos.query.filter_by(id=id).first()
-    return render_template('editar.html', titulo='Editando jogo', jogo=jogo)
+    capa_jogo = recupera_imagem(id)
+    return render_template('editar.html', titulo='Editando jogo', jogo=jogo, capa_jogo=capa_jogo)
 
 
 
@@ -56,6 +62,16 @@ def atualizar():
     db.session.add(jogo)
     db.session.commit()
 
+    arquivo = request.files['arquivo']
+    upload_path = app.config['UPLOAD_PATH']
+    timestamp = time.time()
+    deleta_arquivo(jogo.id)
+    arquivo.save(f'{upload_path}/capa{jogo.id}-{timestamp}.jpg')
+
+    return redirect(url_for('index'))
+
+def recupera_imagem(id):
+    
     return redirect(url_for('index'))
 
 @app.route('/deletar/<int:id>')
@@ -68,8 +84,6 @@ def deletar(id):
     flash('Jogo deletado com sucesso!')
 
     return redirect(url_for('index'))
-
-
 
 @app.route('/login')
 def login():
@@ -94,3 +108,8 @@ def logout():
     session['usuario_logado'] = None
     flash('Logout efetuado com sucesso!')
     return redirect(url_for('index'))
+
+@app.route('/uploads/<nome_arquivo>')
+def imagem(nome_arquivo):
+    return send_from_directory('uploads', nome_arquivo)
+

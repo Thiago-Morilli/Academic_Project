@@ -9,7 +9,7 @@ class FormularioJogo(FlaskForm):
     console = StringField('Console', [validators.DataRequired(), validators.Length(min=1, max=20)])
     salvar = SubmitField('Salvar')
 
-
+ 
 class FormularioUsuario(FlaskForm):
     nickname = StringField('Nickname', [validators.DataRequired(), validators.Length(min=1, max=8)])
     senha = PasswordField('Senha', [validators.DataRequired(), validators.Length(min=1, max=100)])
